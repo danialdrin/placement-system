@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Company Import Preview | HireSync{% endblock %}
+{% block header_title %}Review Company Data{% endblock %}
+
+{% block content %}
+<div class="glass" style="padding: 32px; margin-bottom: 32px;">
+    <form action="{{ url_for('save_imported_companies') }}" method="POST">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div>
+                <h3 style="font-size: 1.5rem;">Company Import Preview</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    Review the company data before importing. Fields with <span style="color:var(--danger)">*</span> are
+                    required.
+                </p>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <a href="{{ url_for('admin_companies') }}" class="btn-secondary"
+                    style="text-decoration: none; padding: 12px 24px;">Cancel</a>
+                <button type="submit" class="btn-primary" style="padding: 12px 24px;">
+                    <i data-lucide="check-circle"></i> Confirm & Save All
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Row</th>
+                        <th>Company Name <span style="color:var(--danger)">*</span></th>
+                        <th>Role <span style="color:var(--danger)">*</span></th>
+                        <th>Location</th>
+                        <th>Package (LPA) <span style="color:var(--danger)">*</span></th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in preview_data %}
+                    <tr {% if record.errors %}class="row-error" {% endif %}>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            <input type="text" name="company_name" value="{{ record.company_name }}"
+                                class="preview-input" required>
+                        </td>
+                        <td>
+                            <input type="text" name="offer_role" value="{{ record.offer_role }}" class="preview-input"
+                                required>
+                        </td>
+                        <td>
+                            <input type="text" name="work_location" value="{{ record.work_location }}"
+                                class="preview-input">
+                        </td>
+                        <td>
+                            <input type="number" step="0.01" name="package_lpa" value="{{ record.package_lpa }}"
+                                class="preview-input" required>
+                        </td>
+                        <td>
+                            {% if record.errors %}
+                            <div style="color: var(--danger); font-size: 0.75rem;">
+                                {% for error in record.errors %}
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <i data-lucide="alert-circle" style="width: 12px; height: 12px;"></i>
+                                    {{ error }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <span
+                                style="color: #10b981; display: flex; align-items: center; gap: 4px; font-size: 0.85rem;">
+                                <i data-lucide="check" style="width: 16px; height: 16px;"></i> Ready
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+<style>
+    .preview-input {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+        padding: 6px 10px;
+        border-radius: 6px;
+        width: 100%;
+        outline: none;
+        font-size: 0.9rem;
+    }
+
+    .preview-input:focus {
+        border-color: var(--primary);
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        border-radius: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        border: none;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    .row-error {
+        background: rgba(239, 68, 68, 0.05) !important;
+    }
+</style>
+{% endblock %}

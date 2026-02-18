@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Find Jobs | HireSync{% endblock %}
+{% block header_title %}Available Opportunities{% endblock %}
+
+{% block content %}
+<form method="GET" action="{{ url_for('student_jobs') }}" class="glass" style="padding: 32px; margin-bottom: 32px;">
+    <div style="display: grid; grid-template-columns: 1fr auto; gap: 20px;">
+        <div class="form-group" style="margin-bottom: 0;">
+            <input type="text" name="search" value="{{ search or '' }}"
+                placeholder="Search for companies (e.g., TCS)..." style="width: 100%;">
+        </div>
+        <button type="submit" class="primary" style="height: 100%;">
+            <i data-lucide="search"></i> Search
+        </button>
+    </div>
+</form>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
+    {% for job in jobs %}
+    <div class="glass" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div
+                style="width: 48px; height: 48px; border-radius: 12px; background: var(--primary); display: flex; justify-content: center; align-items: center; color: white;">
+                <i data-lucide="building-2"></i>
+            </div>
+            <span class="status-badge" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary);">
+                Full Time
+            </span>
+        </div>
+
+        <div>
+            <h3 style="font-size: 1.25rem; margin-bottom: 4px;">{{ job.company_name }}</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">{{ job.offer_role }}</p>
+        </div>
+
+        <div style="display: flex; gap: 16px; color: var(--text-muted); font-size: 0.85rem;">
+            <span style="display: flex; align-items: center; gap: 4px;">
+                <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> {{ job.work_location }}
+            </span>
+            <span style="display: flex; align-items: center; gap: 4px;">
+                <i data-lucide="banknote" style="width: 14px; height: 14px;"></i> {{ job.package_lpa }} LPA
+            </span>
+        </div>
+
+        {% if job.app_status %}
+        <button class="glass"
+            style="width: 100%; margin-top: auto; padding: 10px; cursor: default; opacity: 0.7; color: var(--success);"
+            disabled>
+            <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i> Applied ({{ job.app_status }})
+        </button>
+        {% elif has_arrears %}
+        <div
+            style="width: 100%; margin-top: auto; padding: 12px; border-radius: 12px; background: rgba(239, 68, 68, 0.1); color: var(--danger); text-align: center; font-size: 0.85rem; font-weight: 500; border: 1px solid rgba(239, 68, 68, 0.2);">
+            <i data-lucide="alert-circle" style="width: 16px; height: 16px; vertical-align: middle;"></i> Not Eligible
+            (Arrears)
+        </div>
+        {% else %}
+        <form action="{{ url_for('apply_job', company_id=job.company_id) }}" method="POST" style="margin-top: auto;">
+            <button type="submit" class="primary" style="width: 100%; padding: 10px;">
+                Apply Now
+            </button>
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard | HireSync{% endblock %}
+{% block header_title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card glass">
+        <span class="stat-label">Total Applications</span>
+        <span class="stat-val">{{ stats.total }}</span>
+        <i data-lucide="send"
+            style="position: absolute; right: 20px; top: 20px; opacity: 0.1; width: 48px; height: 48px;"></i>
+    </div>
+    <div class="stat-card glass" style="border-bottom: 3px solid var(--success);">
+        <span class="stat-label">Offers Received</span>
+        <span class="stat-val">{{ stats.placed }}</span>
+        <i data-lucide="award"
+            style="position: absolute; right: 20px; top: 20px; opacity: 0.1; width: 48px; height: 48px;"></i>
+    </div>
+    <div class="stat-card glass" style="border-bottom: 3px solid #818cf8;">
+        <span class="stat-label">Active Interviews</span>
+        <span class="stat-val">{{ stats.interviews }}</span>
+        <i data-lucide="video"
+            style="position: absolute; right: 20px; top: 20px; opacity: 0.1; width: 48px; height: 48px;"></i>
+    </div>
+</div>
+
+<div class="glass" style="padding: 32px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h3 style="font-size: 1.5rem;">Recent Applications</h3>
+        <a href="/student/jobs" class="nav-link glass" style="font-size: 0.9rem; padding: 8px 16px;">
+            Explore More Jobs
+        </a>
+    </div>
+
+    {% if data %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Applied Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in data %}
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div
+                                style="width: 32px; height: 32px; border-radius: 8px; background: var(--primary); display: flex; justify-content: center; align-items: center; font-size: 0.8rem; color: white;">
+                                <i data-lucide="building-2" style="width: 16px; height: 16px;"></i>
+                            </div>
+                            <span style="font-weight: 500;">{{ item.company_name }}</span>
+                        </div>
+                    </td>
+                    <td>{{ item.offer_role }}</td>
+                    <td>
+                        <span class="status-badge status-{{ item.status.lower() }}">
+                            {{ item.status }}
+                        </span>
+                    </td>
+                    <td style="color: var(--text-muted); font-size: 0.9rem;">{{ item.applied_date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 48px 0;">
+        <div
+            style="width: 80px; height: 80px; background: var(--glass-bg); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 16px;">
+            <i data-lucide="inbox" style="width: 32px; height: 32px; color: var(--text-muted);"></i>
+        </div>
+        <p style="color: var(--text-muted);">No applications yet. Start exploring jobs!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

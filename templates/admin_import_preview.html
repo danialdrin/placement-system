@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Import Preview | HireSync{% endblock %}
+{% block header_title %}Review Import Data{% endblock %}
+
+{% block content %}
+<div class="glass" style="padding: 32px; margin-bottom: 32px;">
+    <form action="{{ url_for('save_imported_students') }}" method="POST">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div>
+                <h3 style="font-size: 1.5rem;">Excel Import Preview</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    You can edit the records directly in the table below.
+                    Records with valid required fields (Name/Email) will be imported.
+                </p>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <a href="{{ url_for('admin_students') }}" class="btn-secondary"
+                    style="text-decoration: none; padding: 12px 24px;">Cancel</a>
+                <button type="submit" class="btn-primary" style="padding: 12px 24px;">
+                    <i data-lucide="check-circle"></i> Confirm & Save All
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Row</th>
+                        <th>Name <span style="color:var(--danger)">*</span></th>
+                        <th>Email <span style="color:var(--danger)">*</span></th>
+                        <th>Department</th>
+                        <th>CGPA</th>
+                        <th>Arrears</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in preview_data %}
+                    <tr {% if record.errors %}class="row-error" {% endif %}>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            <input type="text" name="name" value="{{ record.name }}" class="preview-input" required>
+                        </td>
+                        <td>
+                            <input type="email" name="email" value="{{ record.email }}" class="preview-input" required>
+                        </td>
+                        <td>
+                            <select name="department" class="preview-input">
+                                <option value="CSE" {% if record.department=='CSE' %}selected{% endif %}>CSE</option>
+                                <option value="ECS" {% if record.department=='ECS' %}selected{% endif %}>ECS</option>
+                                <option value="AIDS" {% if record.department=='AIDS' %}selected{% endif %}>AIDS</option>
+                                <option value="CS" {% if record.department=='CS' %}selected{% endif %}>CS</option>
+                                <option value="" {% if record.department not in ['CSE', 'ECS' , 'AIDS' , 'CS' ]
+                                    %}selected{% endif %}>Invalid</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" step="0.01" name="cgpa" value="{{ record.cgpa }}" class="preview-input"
+                                placeholder="0-10">
+                        </td>
+                        <td>
+                            <input type="number" name="arrears" value="{{ record.arrears }}" class="preview-input"
+                                placeholder="0">
+                        </td>
+                        <td>
+                            {% if record.errors %}
+                            <div style="color: var(--danger); font-size: 0.75rem;">
+                                {% for error in record.errors %}
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <i data-lucide="alert-circle" style="width: 12px; height: 12px;"></i>
+                                    {{ error }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <span
+                                style="color: #10b981; display: flex; align-items: center; gap: 4px; font-size: 0.85rem;">
+                                <i data-lucide="check" style="width: 16px; height: 16px;"></i> Ready
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+<style>
+    .preview-input {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+        padding: 6px 10px;
+        border-radius: 6px;
+        width: 100%;
+        outline: none;
+        font-size: 0.9rem;
+    }
+
+    .preview-input:focus {
+        border-color: var(--primary);
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        border-radius: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        border: none;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    .row-error {
+        background: rgba(239, 68, 68, 0.05) !important;
+    }
+</style>
+{% endblock %}

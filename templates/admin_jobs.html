@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Job Offers | HireSync{% endblock %}
+{% block header_title %}Placement Status{% endblock %}
+
+{% block content %}
+<!-- Header Row -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+    <h3 style="font-size: 1.5rem; color: var(--text-main);">
+        Managing Job Applications
+        {% if current_filter %}
+        <span class="status-badge status-{{ current_filter.lower() }}"
+            style="font-size: 0.9rem; margin-left: 12px; vertical-align: middle;">
+            {{ current_filter }}
+        </span>
+        {% endif %}
+    </h3>
+    {% if current_filter %}
+    <a href="{{ url_for('admin_jobs') }}" class="btn-secondary"
+        style="text-decoration: none; padding: 0 24px; height: 44px; display: flex; align-items: center; font-size: 0.95rem;">
+        <i data-lucide="list" style="width: 18px; height: 18px; margin-right: 8px;"></i> View All
+    </a>
+    {% endif %}
+</div>
+
+<!-- Search & Filter Bar -->
+<form method="GET" action="{{ url_for('admin_jobs') }}" class="glass" style="padding: 20px; margin-bottom: 24px;">
+    <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center;">
+        <div class="form-group" style="margin-bottom: 0;">
+            <div style="position: relative;">
+                <i data-lucide="search"
+                    style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted);"></i>
+                <input type="text" name="search" value="{{ search or '' }}" placeholder="Search student or company..."
+                    style="padding-left: 36px; width: 100%;">
+            </div>
+        </div>
+
+        <select name="status" style="min-width: 180px;">
+            <option value="">All Status</option>
+            <option value="Pending" {% if current_filter=='Pending' %}selected{% endif %}>Pending</option>
+            <option value="Interview" {% if current_filter=='Interview' %}selected{% endif %}>Interview</option>
+            <option value="Selected" {% if current_filter=='Selected' %}selected{% endif %}>Selected</option>
+            <option value="Rejected" {% if current_filter=='Rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+
+        <div style="display: flex; gap: 8px;">
+            <button type="submit" class="btn-primary"
+                style="padding: 10px 20px; font-size: 0.9rem; height: 44px; width: auto;">
+                Apply
+            </button>
+            {% if search or current_filter %}
+            <a href="{{ url_for('admin_jobs') }}" class="btn-secondary"
+                style="height: 44px; width: 44px; display: flex; justify-content: center; align-items: center; border-radius: 10px; padding: 0;"
+                title="Clear Filters">
+                <i data-lucide="rotate-ccw" style="width: 18px; height: 18px;"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</form>
+
+<div class="glass" style="padding: 20px;">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Offer ID</th>
+                    <th>Student Name</th>
+                    <th>Company</th>
+                    <th>Date Applied</th>
+                    <th>Status</th>
+                    <th style="text-align: right; padding-right: 24px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for offer in offers %}
+                <tr>
+                    <td><span style="color: var(--text-muted);">#</span>{{ offer.offer_id }}</td>
+                    <td>
+                        <div style="font-weight: 500;">{{ offer.student_name }}</div>
+                    </td>
+                    <td>{{ offer.company_name }}</td>
+                    <td style="color: var(--text-muted); font-size: 0.9rem;">{{ offer.applied_date }}</td>
+                    <td>
+                        <span class="status-badge status-{{ offer.status.lower() }}">
+                            {{ offer.status }}
+                        </span>
+                    </td>
+                    <td style="text-align: right; padding-right: 24px;">
+                        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                            {% if offer.status == 'Pending' %}
+                            <a href="{{ url_for('update_offer_status', offer_id=offer.offer_id, status='Interview') }}"
+                                class="btn-icon" style="color: var(--primary); background: rgba(99, 102, 241, 0.1);"
+                                title="Move to Interview">
+                                <i data-lucide="video" style="width: 18px; height: 18px;"></i>
+                            </a>
+                            {% endif %}
+
+                            {% if offer.status == 'Pending' or offer.status == 'Interview' %}
+                            <a href="{{ url_for('update_offer_status', offer_id=offer.offer_id, status='Selected') }}"
+                                class="btn-icon" style="color: var(--success); background: rgba(16, 185, 129, 0.1);"
+                                title="Select Student">
+                                <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+                            </a>
+                            <a href="{{ url_for('update_offer_status', offer_id=offer.offer_id, status='Rejected') }}"
+                                class="btn-icon" style="color: var(--danger); background: rgba(239, 68, 68, 0.1);"
+                                title="Reject Student">
+                                <i data-lucide="alert-circle" style="width: 18px; height: 18px;"></i>
+                            </a>
+                            {% endif %}
+
+                            {% if offer.status != 'Pending' %}
+                            <a href="{{ url_for('update_offer_status', offer_id=offer.offer_id, status='Pending') }}"
+                                style="color: var(--text-muted); font-size: 0.75rem; text-decoration: none; border: 1px solid var(--glass-border); padding: 4px 8px; border-radius: 6px; display: flex; align-items: center;">
+                                Reset
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-icon:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.2);
+    }
+</style>
+{% endblock %}

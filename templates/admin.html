@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | HireSync{% endblock %}
+{% block header_title %}Admin Overview{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <a href="{{ url_for('admin_students') }}" style="text-decoration: none; color: inherit;">
+        <div class="stat-card glass" style="cursor: pointer;">
+            <span class="stat-label">Total Students</span>
+            <span class="stat-val">{{ total_students }}</span>
+            <i data-lucide="users"
+                style="position: absolute; right: 20px; top: 20px; opacity: 0.1; width: 48px; height: 48px;"></i>
+        </div>
+    </a>
+    <a href="{{ url_for('admin_companies') }}" style="text-decoration: none; color: inherit;">
+        <div class="stat-card glass" style="border-bottom: 3px solid var(--primary); cursor: pointer;">
+            <span class="stat-label">Active Companies</span>
+            <span class="stat-val">{{ total_companies }}</span>
+            <i data-lucide="building-2"
+                style="position: absolute; right: 20px; top: 20px; opacity: 0.1; width: 48px; height: 48px;"></i>
+        </div>
+    </a>
+    <a href="{{ url_for('admin_students', filter='placed') }}" style="text-decoration: none; color: inherit;">
+        <div class="stat-card glass" style="border-bottom: 3px solid var(--success); cursor: pointer;">
+            <span class="stat-label">Placed Students</span>
+            <span class="stat-val">{{ placed_students }}</span>
+            <i data-lucide="check-circle"
+                style="position: absolute; right: 20px; top: 20px; opacity: 0.1; width: 48px; height: 48px;"></i>
+        </div>
+    </a>
+    <a href="{{ url_for('admin_jobs', status='Interview') }}" style="text-decoration: none; color: inherit;">
+        <div class="stat-card glass" style="border-bottom: 3px solid #818cf8; cursor: pointer;">
+            <span class="stat-label">Ongoing Interviews</span>
+            <span class="stat-val">{{ ongoing_interviews }}</span>
+            <i data-lucide="video"
+                style="position: absolute; right: 20px; top: 20px; opacity: 0.1; width: 48px; height: 48px;"></i>
+        </div>
+    </a>
+</div>
+
+<!-- Recent Activity Section -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px; margin-top: 32px;">
+
+    <!-- Recent Applications -->
+    <div class="glass" style="padding: 24px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+            <div
+                style="padding: 10px; background: rgba(99, 102, 241, 0.1); color: var(--primary); border-radius: 12px;">
+                <i data-lucide="send" style="width: 20px; height: 20px;"></i>
+            </div>
+            <h3 style="font-size: 1.25rem;">Recent Applications</h3>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            {% for app in recent_apps %}
+            <div
+                style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border);">
+                <div>
+                    <div style="font-weight: 600; font-size: 1rem;">{{ app.student_name }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Applied to <span
+                            style="color: var(--text-main);">{{ app.company_name }}</span></div>
+                </div>
+                <div
+                    style="font-size: 0.75rem; color: var(--text-muted); background: var(--glass-bg); padding: 4px 8px; border-radius: 6px;">
+                    {{ app.date }}
+                </div>
+            </div>
+            {% else %}
+            <div style="text-align: center; color: var(--text-muted); padding: 20px;">No recent applications</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Placements -->
+    <div class="glass" style="padding: 24px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+            <div
+                style="padding: 10px; background: rgba(16, 185, 129, 0.1); color: var(--success); border-radius: 12px;">
+                <i data-lucide="award" style="width: 20px; height: 20px;"></i>
+            </div>
+            <h3 style="font-size: 1.25rem;">Recent Placements</h3>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            {% for p in recent_placements %}
+            <div
+                style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border);">
+                <div>
+                    <div style="font-weight: 600; font-size: 1rem; color: var(--success);">{{ p.student_name }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Placed at <span
+                            style="color: var(--text-main);">{{ p.company_name }}</span></div>
+                </div>
+                <div
+                    style="font-size: 0.75rem; color: var(--text-muted); background: var(--glass-bg); padding: 4px 8px; border-radius: 6px;">
+                    {{ p.date }}
+                </div>
+            </div>
+            {% else %}
+            <div style="text-align: center; color: var(--text-muted); padding: 20px;">No recent placements</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- New Company Additions -->
+    <div class="glass" style="padding: 24px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+            <div
+                style="padding: 10px; background: rgba(236, 72, 153, 0.1); color: var(--secondary); border-radius: 12px;">
+                <i data-lucide="building-2" style="width: 20px; height: 20px;"></i>
+            </div>
+            <h3 style="font-size: 1.25rem;">New Companies</h3>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            {% for comp in recent_companies %}
+            <div
+                style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border);">
+                <div>
+                    <div style="font-weight: 600; font-size: 1rem;">{{ comp.company_name }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">{{ comp.offer_role }}</div>
+                </div>
+                <div
+                    style="font-size: 0.75rem; color: var(--text-muted); background: var(--glass-bg); padding: 4px 8px; border-radius: 6px;">
+                    {{ comp.date }}
+                </div>
+            </div>
+            {% else %}
+            <div style="text-align: center; color: var(--text-muted); padding: 20px;">No new companies</div>
+            {% endfor %}
+        </div>
+        <a href="/companies"
+            style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; color: var(--secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500;">
+            Manage Companies <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+        </a>
+    </div>
+
+</div>
+
+<style>
+    .stat-card {
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    /* Activity Feed styling */
+    .activity-feed-item {
+        transition: background 0.2s ease;
+        border-radius: 8px;
+    }
+
+    .activity-feed-item:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+</style>
+{% endblock %}

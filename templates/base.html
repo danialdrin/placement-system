@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Placement System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons (via CDN for simplicity) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    {% if session.get('user') %}
+    <div class="dashboard">
+        <aside class="sidebar glass">
+            <div class="sidebar-logo">
+                <i data-lucide="layers"></i>
+                <span>HireSync</span>
+            </div>
+
+            <nav>
+                {% if session.user.role == 'admin' %}
+                <a href="{{ url_for('admin_dashboard') }}" id="nav-admin-dashboard"
+                    class="nav-link {% if request.path == '/admin' %}active{% endif %}">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('admin_students') }}" id="nav-admin-students"
+                    class="nav-link {% if request.path == '/admin/students' %}active{% endif %}">
+                    <i data-lucide="users"></i>
+                    <span>Students</span>
+                </a>
+                <a href="{{ url_for('admin_companies') }}" id="nav-admin-companies"
+                    class="nav-link {% if request.path == '/companies' %}active{% endif %}">
+                    <i data-lucide="building-2"></i>
+                    <span>Companies</span>
+                </a>
+                <a href="{{ url_for('admin_jobs') }}" id="nav-admin-jobs"
+                    class="nav-link {% if request.path == '/admin/jobs' %}active{% endif %}">
+                    <i data-lucide="briefcase"></i>
+                    <span>Job Offers</span>
+                </a>
+                {% else %}
+                <a href="{{ url_for('student_dashboard') }}" id="nav-student-dashboard"
+                    class="nav-link {% if request.path == '/student' %}active{% endif %}">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>My Dashboard</span>
+                </a>
+                <a href="{{ url_for('student_profile') }}" id="nav-student-profile"
+                    class="nav-link {% if request.path == '/student/profile' %}active{% endif %}">
+                    <i data-lucide="user-circle"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="{{ url_for('student_jobs') }}" id="nav-student-jobs"
+                    class="nav-link {% if request.path == '/student/jobs' %}active{% endif %}">
+                    <i data-lucide="search"></i>
+                    <span>Find Jobs</span>
+                </a>
+                {% endif %}
+            </nav>
+
+            <div style="margin-top: auto;">
+                <a href="/logout" class="nav-link" style="color: var(--danger);">
+                    <i data-lucide="log-out"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+                <h1>{% block header_title %}Welcome back, {{ session.user.username }}{% endblock %}</h1>
+                <div class="glass" style="padding: 8px 16px; display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 0.9rem; font-weight: 500;">{{ session.user.role | capitalize }}</span>
+                    <div
+                        style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary); display: flex; justify-content: center; align-items: center; font-weight: bold;">
+                        {{ session.user.username[0] | upper }}
+                    </div>
+                </div>
+            </header>
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% else %}
+    {% block auth_content %}{% endblock %}
+    {% endif %}
+
+    <div id="toast-container"></div>
+
+    <!-- Flash Messages Container -->
+    <div id="flash-messages" style="display: none;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <span data-category="{{ category }}" data-message="{{ message }}"></span>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+
+            const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+
+            toast.innerHTML = `
+                <div class="toast-icon"><i data-lucide="${icon}"></i></div>
+                <div class="toast-content">${message}</div>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.add('removing');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Handle Flask Flashed Messages (Safely)
+        document.querySelectorAll('#flash-messages span').forEach(el => {
+            showToast(el.dataset.message, el.dataset.category);
+        });
+    </script>
+</body>
+
+</html>
