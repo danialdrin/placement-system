@@ -12,8 +12,8 @@ def get_db_connection():
     return mysql.connector.connect(
         host="localhost",
         user="root",
-        password="Dani@m13",
-        database="placement_db",
+        password="Password",
+        database="Database",
         autocommit=True
     )
 
@@ -784,3 +784,4 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
